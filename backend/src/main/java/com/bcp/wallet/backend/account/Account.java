@@ -59,6 +59,10 @@ public class Account {
         return OnboardingStep.afterCompleted(completedSteps);
     }
 
+    public void replacePasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
     public void completeCurrentStep() {
         completedSteps++;
         if (completedSteps == OnboardingStep.total()) {

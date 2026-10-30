@@ -9,6 +9,8 @@ import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.bcp.wallet.backend.config.WalletProperties;
@@ -24,6 +26,7 @@ public class PasswordHasher {
     private static final int SALT_BYTES = 16;
     private static final int HASH_BITS = 256;
     private static final int BITS_PER_BYTE = 8;
+    private static final String WARM_UP_PASSWORD = "warm-up";
 
     private final SecureRandom random = new SecureRandom();
     private final int iterations;
@@ -37,6 +40,16 @@ public class PasswordHasher {
         random.nextBytes(salt);
         byte[] hash = derive(password, salt, iterations, HASH_BITS);
         return String.join(FIELD_SEPARATOR, FORMAT_ID, String.valueOf(iterations), encode(salt), encode(hash));
+    }
+
+    public boolean needsRehash(String stored) {
+        String[] fields = stored.split(FIELD_SEPARATOR_REGEX);
+        return fields.length != STORED_FIELD_COUNT || !String.valueOf(iterations).equals(fields[1]);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    void warmUp() {
+        hash(WARM_UP_PASSWORD);
     }
 
     public boolean matches(String password, String stored) {
