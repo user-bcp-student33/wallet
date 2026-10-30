@@ -27,6 +27,38 @@ Wallet Perú es el MVP de una billetera digital: registro y activación guiados 
 | Calidad | JaCoCo 0.8.14 | - | Cobertura del backend; cobertura mínima de líneas 85% |
 | Calidad | Vitest 3.2.4 + `@vitest/coverage-v8` | 3.2.4 | Pruebas unitarias del frontend y cobertura de `src/app/wallet` |
 
+## Skills y servidores MCP
+
+### Skills
+
+Skills disponibles en el repositorio:
+
+| Skill | Ubicación | Uso |
+|-------|-----------|-----|
+| `angular-developer` | `.agents/skills/` | Guías para desarrollar y mantener la aplicación Angular |
+| `java-springboot` | `.agents/skills/` | Buenas prácticas para el backend con Spring Boot |
+| `user-story-html-prototype` | `.agents/skills/` | Prototipos HTML interactivos a partir de historias de usuario |
+| `create-pull-request` | `.github/skills/` | Flujo para crear Pull Requests y validar las pruebas requeridas |
+| `sonarqube-analysis` | `.github/skills/` | Análisis de calidad y seguridad de backend y frontend con SonarQube |
+| `openspec-explore` | `backend/.github/skills/` | Explorar ideas y aclarar requisitos antes o durante un cambio |
+| `openspec-propose` | `backend/.github/skills/` | Proponer un cambio OpenSpec con sus artefactos |
+| `openspec-apply-change` | `backend/.github/skills/` | Implementar las tareas de un cambio OpenSpec |
+| `openspec-update-change` | `backend/.github/skills/` | Revisar y mantener coherentes los artefactos de planificación |
+| `openspec-sync-specs` | `backend/.github/skills/` | Sincronizar las especificaciones del cambio con las principales |
+| `openspec-archive-change` | `backend/.github/skills/` | Archivar un cambio OpenSpec completado |
+
+Las skills `angular-developer` y `java-springboot` también están registradas en `skills-lock.json`.
+
+### Servidores MCP
+
+Los servidores MCP del proyecto están declarados en `.vscode/mcp.json`:
+
+| Servidor | Alcance | Acceso |
+|----------|---------|--------|
+| `github-official` | Herramientas de GitHub | Según la configuración del servidor |
+| `github-official-readonly` | Issues, repositorios, Pull Requests y proyectos | Solo lectura |
+| `sonarqube` | Proyectos, issues, quality gates y análisis de SonarQube | Solo lectura; servidor local |
+
 ## Estructura del repositorio
 
 ```text
