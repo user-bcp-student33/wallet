@@ -6,7 +6,9 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json-summary', 'html']
+      reporter: ['text', 'json-summary', 'html'],
+      include: ['src/app/wallet/**/*.ts'],
+      exclude: ['src/app/wallet/**/*.spec.ts', 'src/app/wallet/wallet.models.ts']
     }
   }
 });
