@@ -1,0 +1,170 @@
+<main class="app-shell">
+  @if (page === 'home') {
+    <section class="screen home-screen">
+      <header class="topbar">
+        <a class="brand" [routerLink]="['/']" aria-label="Wallet Perú, inicio">
+          <span class="brandmark" aria-hidden="true">↗</span><span>Wallet Perú</span>
+        </a>
+        <span class="top-pill">Pagos entre contactos</span>
+      </header>
+      <div class="hero">
+        <span class="eyebrow">Pagos simples y cercanos</span>
+        <h1>Tu dinero,<br>más cerca de todos.</h1>
+        <p>Envía dinero a tus contactos en pocos pasos. Fácil, rápido y desde donde estés.</p>
+      </div>
+      <div class="wallet-art" aria-hidden="true">
+        <div class="art-halo"></div>
+        <div class="art-card"><span class="art-arrow">↗</span><span class="art-chip"></span></div>
+        <div class="float-note float-note-top"><span class="live-dot"></span>Conecta y paga</div>
+        <div class="float-note float-note-bottom">Tus contactos, más cerca</div>
+      </div>
+      <div class="flex-spacer"></div>
+      <div class="button-stack">
+        <button class="button button-primary" type="button" [routerLink]="['/', paths.register]">Crear una cuenta <span aria-hidden="true">→</span></button>
+        <button class="button button-soft" type="button" [routerLink]="['/', paths.login]">Ya tengo una cuenta</button>
+      </div>
+      <p class="footnote">Wallet Perú · Tu dinero, más cerca</p>
+    </section>
+  }
+
+  @if (page === 'register' || page === 'login') {
+    <section class="screen form-screen">
+      <header class="topbar">
+        <button class="icon-button" type="button" aria-label="Volver al inicio" [routerLink]="['/']">‹</button>
+        <span class="top-pill">Pagos entre contactos</span>
+      </header>
+      @if (page === 'register') {
+        <div class="progress-track" role="img" aria-label="Paso 1 de 3"><span style="width:33.333%"></span></div>
+        <p class="step-caption">PASO 1 DE 3 <span>·</span> CONFIGURA TU CUENTA</p>
+        <div class="section-heading">
+          <span class="eyebrow">Empecemos</span>
+          <h1>Crear una cuenta</h1>
+          <p>Comencemos con tus datos para conectar tu billetera.</p>
+        </div>
+        <form class="form-fields" (ngSubmit)="register()" novalidate>
+          <label class="field-group">
+            <span class="field-label">Número de tarjeta</span>
+            <input class="text-field" [class.field-invalid]="fieldErrors.cardNumber" [value]="cardNumber" (input)="formatCard($event)" inputmode="numeric" autocomplete="off" maxlength="19" placeholder="0000 0000 0000 0000" aria-describedby="card-error" required>
+            @if (fieldErrors.cardNumber) { <span class="field-error" id="card-error" role="alert">{{ fieldErrors.cardNumber }}</span> }
+          </label>
+          <label class="field-group">
+            <span class="field-label">CVV</span>
+            <input class="text-field" [class.field-invalid]="fieldErrors.cvv" [value]="cvv" (input)="formatDigits($event, 'cvv', 3)" inputmode="numeric" autocomplete="off" type="password" maxlength="3" placeholder="•••" aria-describedby="cvv-error" required>
+            <span class="field-hint">Utiliza únicamente datos de prueba.</span>
+            @if (fieldErrors.cvv) { <span class="field-error" id="cvv-error" role="alert">{{ fieldErrors.cvv }}</span> }
+          </label>
+          <label class="field-group">
+            <span class="field-label">Número de celular</span>
+            <input class="text-field" [class.field-invalid]="fieldErrors.phoneNumber" [value]="phoneNumber" (input)="formatDigits($event, 'phoneNumber', 9)" inputmode="numeric" autocomplete="tel-national" maxlength="9" placeholder="987 654 321" aria-describedby="register-phone-error" required>
+            <span class="field-hint">Usarás este número para ingresar a tu cuenta.</span>
+            @if (fieldErrors.phoneNumber) { <span class="field-error" id="register-phone-error" role="alert">{{ fieldErrors.phoneNumber }}</span> }
+          </label>
+          <label class="field-group">
+            <span class="field-label">Crea tu contraseña</span>
+            <span class="password-wrap">
+              <input class="text-field" [class.field-invalid]="fieldErrors.password" [(ngModel)]="password" name="password" [type]="showPassword ? 'text' : 'password'" autocomplete="new-password" minlength="8" maxlength="128" placeholder="Mínimo 8 caracteres" aria-describedby="register-password-error" required>
+              <button class="show-password" type="button" (click)="showPassword = !showPassword">{{ showPassword ? 'Ocultar' : 'Mostrar' }}</button>
+            </span>
+            @if (fieldErrors.password) { <span class="field-error" id="register-password-error" role="alert">{{ fieldErrors.password }}</span> }
+          </label>
+          <p class="secure-note"><span aria-hidden="true">◇</span> Tus datos se transmiten de forma segura.</p>
+          @if (pageError) { <p class="form-alert" role="alert">{{ pageError }}</p> }
+          <button class="button button-primary" type="submit" [disabled]="busy">{{ busy ? 'Creando tu cuenta…' : 'Continuar' }} <span aria-hidden="true">→</span></button>
+        </form>
+      } @else {
+        <div class="section-heading login-heading">
+          <span class="eyebrow">Bienvenido de nuevo</span>
+          <h1>Ingresa a tu cuenta</h1>
+          <p>Tus contactos están a un paso.</p>
+        </div>
+        <form class="form-fields login-fields" (ngSubmit)="login()" novalidate>
+          <label class="field-group">
+            <span class="field-label">Número de celular</span>
+            <input class="text-field" [class.field-invalid]="fieldErrors.phoneNumber" [value]="loginPhone" (input)="formatDigits($event, 'loginPhone', 9)" inputmode="numeric" autocomplete="tel-national" maxlength="9" placeholder="987 654 321" aria-describedby="login-phone-error" required>
+            @if (fieldErrors.phoneNumber) { <span class="field-error" id="login-phone-error" role="alert">{{ fieldErrors.phoneNumber }}</span> }
+          </label>
+          <label class="field-group">
+            <span class="field-label">Contraseña</span>
+            <span class="password-wrap">
+              <input class="text-field" [class.field-invalid]="fieldErrors.password" [(ngModel)]="loginPassword" name="loginPassword" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="Ingresa tu contraseña" aria-describedby="login-password-error" required>
+              <button class="show-password" type="button" (click)="showPassword = !showPassword">{{ showPassword ? 'Ocultar' : 'Mostrar' }}</button>
+            </span>
+            @if (fieldErrors.password) { <span class="field-error" id="login-password-error" role="alert">{{ fieldErrors.password }}</span> }
+          </label>
+          @if (pageError) { <p class="form-alert" role="alert">{{ pageError }}</p> }
+          <button class="button button-primary" type="submit" [disabled]="busy">{{ busy ? 'Ingresando…' : 'Ingresar' }} <span aria-hidden="true">→</span></button>
+        </form>
+        <div class="flex-spacer"></div>
+        <p class="account-prompt">¿Aún no tienes cuenta? <button type="button" [routerLink]="['/', paths.register]">Crear una cuenta</button></p>
+      }
+      <div class="flex-spacer"></div>
+      <p class="footnote">Wallet Perú · Tu dinero, más cerca</p>
+    </section>
+  }
+
+  @if (page === 'loading' || page === 'approved') {
+    <section class="screen progress-screen">
+      <header class="topbar">
+        <a class="brand" [routerLink]="['/']" aria-label="Wallet Perú"><span class="brandmark" aria-hidden="true">↗</span><span>Wallet Perú</span></a>
+        <span class="top-pill">Pagos entre contactos</span>
+      </header>
+      <div class="progress-track" [attr.aria-label]="'Paso ' + currentStepNumber + ' de 3'" role="img"><span [style.width.%]="currentStepNumber * 100 / 3"></span></div>
+      <p class="step-caption">PASO {{ currentStepNumber }} DE 3 <span>·</span> {{ currentStepLabel | uppercase }}</p>
+      @if (page === 'loading') {
+        <div class="step-content">
+          <div class="loading-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span class="eyebrow">Todo va tomando forma</span>
+          <h1>Preparando tu billetera</h1>
+          <p>Tu cuenta está creada. Un paso más y estará lista para usar.</p>
+          @if (pageError) { <p class="form-alert" role="alert">{{ pageError }}</p> }
+        </div>
+        <div class="flex-spacer"></div>
+        <button class="button button-primary" type="button" [disabled]="busy" (click)="continueOnboarding()">{{ busy ? 'Preparando…' : 'Continuar' }} <span aria-hidden="true">→</span></button>
+      } @else {
+        <div class="step-content ready-content">
+          <div class="success-mark" aria-hidden="true">✓</div>
+          <span class="eyebrow">Cuenta lista</span>
+          <h1>¡Ya casi está!</h1>
+          <p>Tu billetera está preparada. Entra para ver tus contactos.</p>
+          <div class="balance-panel"><span>Saldo disponible</span><strong>S/ 0.00</strong><small>Tu billetera</small></div>
+          @if (pageError) { <p class="form-alert" role="alert">{{ pageError }}</p> }
+        </div>
+        <div class="flex-spacer"></div>
+        <button class="button button-primary" type="button" [disabled]="busy" (click)="continueOnboarding()">{{ busy ? 'Activando…' : 'Ir a mis contactos' }} <span aria-hidden="true">→</span></button>
+      }
+      <p class="footnote">Wallet Perú · Tu dinero, más cerca</p>
+    </section>
+  }
+
+  @if (page === 'contacts') {
+    <section class="screen contacts-screen">
+      <header class="topbar">
+        <a class="brand" [routerLink]="['/']" aria-label="Wallet Perú"><span class="brandmark" aria-hidden="true">↗</span><span>Wallet Perú</span></a>
+        <span class="top-pill">Pagos entre contactos</span>
+      </header>
+      <div class="section-heading contacts-heading">
+        <span class="eyebrow">Transferencias</span>
+        <h1>Pagos entre contactos</h1>
+        <p>Elige a quién deseas enviar dinero.</p>
+      </div>
+      <div class="balance-panel contacts-balance"><span>Saldo disponible</span><strong>S/ 0.00</strong><small>Wallet Perú</small></div>
+      <label class="field-label search-label" for="contact-search">Buscar contacto</label>
+      <input class="text-field search-field" id="contact-search" [(ngModel)]="query" name="query" placeholder="Nombre o número de celular" autocomplete="off">
+      <div class="contact-list-title">Tus contactos</div>
+      <div class="contact-list">
+        @for (contact of filteredContacts; track contact.phone) {
+          <article class="contact-row">
+            <span class="avatar">{{ contact.initials }}</span>
+            <span class="contact-copy"><strong>{{ contact.name }}</strong><small>+51 {{ contact.phone }}</small></span>
+            <button class="pay-button" type="button" disabled [attr.aria-label]="'Pago próximamente para ' + contact.name">Próximamente</button>
+          </article>
+        } @empty {
+          <p class="empty-state">No encontramos contactos con ese nombre.</p>
+        }
+      </div>
+      <div class="flex-spacer"></div>
+      <button class="button button-outline" type="button" (click)="logout()">Cerrar sesión</button>
+      <p class="footnote">Wallet Perú · Tu dinero, más cerca</p>
+    </section>
+  }
+</main>
