@@ -34,6 +34,20 @@ class PasswordHasherTest {
     }
 
     @Test
+    void flagsHashesWithAnotherIterationCountOrFormatForRehash() {
+        PasswordHasher costlier = new PasswordHasher(new WalletProperties(null, new WalletProperties.Security(2000), null));
+
+        assertThat(hasher.needsRehash(hasher.hash(PASSWORD))).isFalse();
+        assertThat(costlier.needsRehash(hasher.hash(PASSWORD))).isTrue();
+        assertThat(hasher.needsRehash("texto-plano")).isTrue();
+    }
+
+    @Test
+    void warmUpDoesNotFail() {
+        hasher.warmUp();
+    }
+
+    @Test
     void rejectsMalformedStoredHashes() {
         assertThat(hasher.matches(PASSWORD, "texto-plano")).isFalse();
         assertThat(hasher.matches(PASSWORD, "otro$1000$AAAA$AAAA")).isFalse();

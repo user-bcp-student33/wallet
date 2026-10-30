@@ -36,6 +36,14 @@ La aplicación SHALL validar registro y login según las reglas del backend, blo
 - **WHEN** el backend responde 409
 - **THEN** la aplicación permanece en el paso 1 y muestra bajo el campo de celular "Este número de celular ya está en uso."
 
+#### Scenario: Credenciales incorrectas en el login
+- **WHEN** el backend responde 401 al iniciar sesión
+- **THEN** la aplicación permanece en el login, muestra "Celular o contraseña incorrectos." y vuelve a habilitar el botón "Ingresar"
+
+#### Scenario: Backend no disponible
+- **WHEN** la petición de registro, login o avance falla sin respuesta del backend
+- **THEN** la aplicación muestra "No pudimos conectar con Wallet Perú. Inténtalo nuevamente." y vuelve a habilitar el botón de la acción
+
 ### Requirement: Avance del onboarding sincronizado con el backend
 La aplicación web SHALL completar cada paso llamando al backend: el paso 1 con `POST /accounts`, el paso 2 con `POST /accounts/{accountId}/onboarding/steps/WALLET_PREPARATION/complete` y el paso 3 con `.../WALLET_READY/complete`. La aplicación MUST NOT conservar tarjeta, CVV ni contraseña después del envío; solo conserva el `accountId` y el estado del onboarding.
 
