@@ -14,9 +14,17 @@ Componentes:
 | backend | `backend/` | `sonar:sonar` (plugin Maven) | `backend/target/site/jacoco/jacoco.xml` |
 | web | `web/` | `sonar-scanner` (CLI) | `web/coverage/lcov.info` (ver nota) |
 
+## Protocolo: servidor MCP `sonarqube`
+
+El proyecto define el servidor MCP `sonarqube` en [mcp.json](C:/Users/Usuario/Documents/T64622-wilson-tuco/wallet/.vscode/mcp.json): `http://localhost:8090/mcp`, con los toolsets `projects,issues,quality-gates,analysis` y en modo solo lectura.
+
+- **Consulta de resultados (proyectos, quality gate, métricas, issues, hotspots y cobertura):** usa siempre las herramientas del servidor MCP `sonarqube`. Antes de llamarlas, búscalas con la herramienta de búsqueda de herramientas y usa los nombres y esquemas que devuelva; no supongas nombres.
+- **Envío del análisis:** el servidor es de solo lectura, así que el análisis se envía localmente con `./mvnw ... sonar:sonar` (backend) y `sonar-scanner` (web). Después de cada envío, consulta el reporte por MCP.
+- **Respaldo:** si el servidor MCP `sonarqube` no está disponible o sus herramientas no se cargan, detente e informa al usuario. Solo usa la API REST con `curl` (bloques marcados como "Respaldo REST") si el usuario lo autoriza.
+
 ## Reglas
 
-- **Nunca** escribas tokens en archivos, commits, comandos ni en la respuesta. Usa las variables de entorno `SONAR_HOST_URL` y `SONAR_TOKEN`.
+- **Nunca** escribas tokens en archivos, commits, comandos ni en la respuesta. Usa las variables de entorno `SONAR_HOST_URL` y `SONAR_TOKEN`. El encabezado `Authorization` del MCP se configura en `mcp.json`; no lo muestres ni lo copies.
 - No imprimas el valor de `SONAR_TOKEN`; verifica solo que existe.
 - No agregues `NOSONAR`, exclusiones (`sonar.exclusions`, `sonar.coverage.exclusions`) ni supresiones para ocultar hallazgos sin justificación explícita aprobada por el usuario.
 - No cambies el quality gate ni desactives reglas del perfil de calidad.
@@ -40,7 +48,7 @@ sonar-scanner --version
 
 Detén el proceso y pide al usuario configurar las variables si falta alguna. Si falta Java 21, Node 22.12+ o `sonar-scanner`, informa qué falta y no instales software sin confirmación.
 
-Confirma que el servidor responde (este endpoint no requiere token):
+Confirma que el servidor MCP `sonarqube` está disponible: busca sus herramientas de proyectos y de quality gate. Si no aparecen, detén el proceso.
 
 ```bash
 curl -s "$SONAR_HOST_URL/api/system/status"
@@ -50,10 +58,11 @@ La respuesta debe contener `"status":"UP"`. Si no, detén el proceso.
 
 ## 2. Confirmar las claves de proyecto
 
-Usa las claves `wallet-backend` y `wallet-web` salvo que el usuario indique otras. Confírmalas en el servidor antes de analizar:
+Usa las claves `wallet-backend` y `wallet-web` salvo que el usuario indique otras. Confirma las claves con la herramienta de proyectos del servidor MCP `sonarqube`, filtrando por `wallet-backend` y `wallet-web`.
 
-```bash
-curl -s -H "Authorization: Bearer $SONAR_TOKEN" "$SONAR_HOST_URL/api/projects/search?projects=wallet-backend,wallet-web"
+Respaldo REST (solo si el servidor MCP no está disponible y el usuario lo autoriza):
+
+```bashcurl -s -H "Authorization: Bearer $SONAR_TOKEN" "$SONAR_HOST_URL/api/projects/search?projects=wallet-backend,wallet-web"
 ```
 
 Si un proyecto no existe, pregunta al usuario si debe crearse en SonarQube. No lo crees tú.
@@ -89,7 +98,16 @@ Nota de cobertura: `web/vitest.config.ts` exporta solo `text`, `json-summary` y 
 
 ## 5. Consultar resultados
 
-Espera a que termine el procesamiento en el servidor antes de consultar. Quality gate de cada proyecto:
+Espera a que termine el procesamiento en el servidor antes de consultar. Usa el servidor MCP `sonarqube` (herramientas de proyectos, quality gate, medidas, issues, hotspots y cobertura por componente) para obtener:
+
+- Quality gate de `wallet-backend` y `wallet-web`.
+- Métricas clave por proyecto: cobertura, bugs, vulnerabilidades, code smells, duplicación y hotspots.
+- Issues abiertos BLOCKER, CRITICAL y MAJOR, ordenados por severidad. Si hay más de 100 resultados, pagina y usa el total reportado, no solo la primera página.
+- Hotspots de seguridad pendientes de revisión (`TO_REVIEW`).
+
+### Respaldo REST
+
+Solo si el servidor MCP no está disponible y el usuario lo autoriza. Quality gate de cada proyecto:
 
 ```bash
 for key in wallet-backend wallet-web; do
@@ -123,7 +141,7 @@ git diff --name-only HEAD
 
 Si no hay cambios locales, compara contra la rama base (confírmala con `gh repo view --json defaultBranchRef --jq .defaultBranchRef.name`) usando `git diff --name-only origin/<base>...HEAD`.
 
-Consulta la cobertura por archivo y revisa solo los archivos modificados:
+Consulta con el servidor MCP `sonarqube` la cobertura por archivo de los archivos modificados, y revisa solo esos. Respaldo REST:
 
 ```bash
 curl -s -H "Authorization: Bearer $SONAR_TOKEN" "$SONAR_HOST_URL/api/measures/component_tree?component=wallet-backend&metricKeys=coverage&qualifiers=FIL&ps=500"

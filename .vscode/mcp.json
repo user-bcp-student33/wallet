@@ -11,6 +11,15 @@
         "X-MCP-Toolsets": "issues,repos,pull_requests,projects",
         "X-MCP-Readonly": "true"
       }
+    },
+    "sonarqube": {
+      "type": "http",
+      "url": "http://localhost:8090/mcp",
+      "headers": {
+        "SONARQUBE_TOOLSETS": "projects,issues,quality-gates,analysis",
+        "SONARQUBE_READ_ONLY": "true",
+        "Authorization": "Bearer squ_bd63c27a4749917495d2043245a215f64613149e"
+      }
     }
   }
 }
